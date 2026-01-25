@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+     <link href="profil.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+    <table  width="100%" height="100" border="1">
+    <tr>
+        <td align="center" style="background-image: url(monas.jpg);"><marquee><h2>< - - - - -Welcome To Jakarta- - - - -></h2></marquee></td>
+    </tr>
+</body bgcolor="yellow">
+<table border="1" width="100%">
+    <tr>
+    <td rowspan="2" width="10%">
+<ul>
+    <a href="index.html"><li>Beranda</li></a>
+    <a href="tentang.html"><li>Latar Belakang Jakarta</li></a>
+    <a href="profile.html"><li>Profile</li></a>
+    <a href="destinasi_wisata.html"><li>Destinasi wisata</li></a>
+    <a href="kuliner.html"><li>Kuliner Khas jakarta</li></a>
+    <a href="galery_video.html"><li>Galery Video</Video></li></a>
+</ul>
+</td>
+<td align="center" width="60%" bgcolor="orange"><h1>PROFILE</h1></td>
+</tr>
+<tr align="center" bgcolor="gray">
+    <td><P><H1>NAMA KELOMPOK</H1></P>
+        <section>
+            <div class="profile-container">
+<div class="card" onclick="openModal (
+  'hasyim.jpg',
+  'Muhammad Hasyim',
+  'Pelajar SMKN 1 Gending<br>Kelas: X RPL 1<br>Jurusan: Rekayasa Perangkat Lunak (RPL)<br>TTL: 13-12-2009'
+)">
+  <img src="hasyim.jpg">
+  <h3>Muhammad Hasyim</h3>
+</div>
+
+ <div  class="card" onclick="openModal (
+    'andre.png',
+    'M. Adriyatul Akbar',
+    'Pelajar SMKN 1 Gending<br>Kelas : X RPL 1<br>Jurusan: Rekayasa Perangkat Lunak (RPL)<br>TTL: 07-05-2009'
+ )">
+ <img src="andre.png">
+ <h3>M. Andriyatul Akbar</h3>
+ </div>
+
+<div id="modal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal()">&times;</span>
+    <img id="modal-img">
+    <h2 id="modal-name"></h2>
+    <p id="modal-bio"></p>
+  </div>
+</div>
+</div>
+<script>
+function openModal(img, name, bio) {
+  document.getElementById("modal").style.display = "block";
+  document.getElementById("modal-img").src = img;
+  document.getElementById("modal-name").innerHTML = name;
+  document.getElementById("modal-bio").innerHTML = bio;
+}
+
+function closeModal() {
+  document.getElementById("modal").style.display = "none";
+}
+</script>
+        </section>
+    </td>
+    </tr>
+</table>
+</body>
+</html>
