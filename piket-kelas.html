@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Papan Piket Kelas</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Libre+Franklin:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+
+  :root{
+    --paper:#FAF6ED;
+    --paper-line:#E7DFC9;
+    --ink:#1F2A44;
+    --ink-soft:#586176;
+    --green:#2F6F4F;
+    --green-bg:#E4F0E7;
+    --red:#C9463D;
+    --red-bg:#FBE6E4;
+    --yellow:#F5C842;
+    --card:#FFFFFF;
+    --radius:14px;
+    --shadow:0 2px 0 rgba(31,42,68,0.06), 0 10px 24px -14px rgba(31,42,68,0.25);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      linear-gradient(var(--paper-line) 1px, transparent 1px) 0 0/100% 32px,
+      var(--paper);
+    color:var(--ink);
+    font-family:'Libre Franklin', system-ui, sans-serif;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  .wrap{
+    max-width:1080px;
+    margin:0 auto;
+    padding: clamp(20px, 4vw, 44px) clamp(16px, 4vw, 32px) 60px;
+  }
+
+  header{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:16px;
+    margin-bottom: clamp(20px, 4vw, 32px);
+  }
+
+  .title-block .eyebrow{
+    font-family:'Space Mono', monospace;
+    font-size:12px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--green);
+    margin:0 0 6px;
+  }
+  h1{
+    font-family:'Space Grotesk', sans-serif;
+    font-size: clamp(26px, 4.4vw, 40px);
+    line-height:1.05;
+    margin:0 0 8px;
+    color:var(--ink);
+  }
+  .subtitle{
+    color:var(--ink-soft);
+    font-size: clamp(13.5px, 1.6vw, 15px);
+    max-width:520px;
+    margin:0;
+  }
+
+  .lock-btn{
+    flex-shrink:0;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    background:var(--card);
+    border:1px solid var(--paper-line);
+    box-shadow:var(--shadow);
+    border-radius:999px;
+    padding:9px 16px 9px 12px;
+    font-family:'Space Mono', monospace;
+    font-size:12px;
+    letter-spacing:0.02em;
+    color:var(--ink-soft);
+    cursor:pointer;
+    transition:transform .15s ease, box-shadow .15s ease, color .15s ease, border-color .15s ease;
+  }
+  .lock-btn:hover{ transform:translateY(-1px); }
+  .lock-btn.on{
+    color:var(--green);
+    border-color:var(--green);
+    background:var(--green-bg);
+  }
+  .lock-btn svg{ width:15px; height:15px; }
+
+  .banner{
+    font-family:'Space Mono', monospace;
+    font-size:12.5px;
+    color:var(--ink-soft);
+    background:var(--card);
+    border:1px dashed var(--paper-line);
+    border-radius:10px;
+    padding:10px 14px;
+    margin-bottom:22px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    flex-wrap:wrap;
+  }
+  .banner b{ color:var(--ink); font-weight:700; }
+  .banner .dot-ok{ color:var(--green); font-weight:700; }
+  .banner .dot-full{ color:var(--red); font-weight:700; }
+
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(190px, 1fr));
+    gap:16px;
+  }
+
+  .card{
+    position:relative;
+    background:var(--card);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:18px 16px 16px;
+    display:flex;
+    flex-direction:column;
+    min-width:0;
+  }
+  .tape{
+    position:absolute;
+    top:-9px;
+    left:18px;
+    width:52px;
+    height:18px;
+    background:var(--yellow);
+    opacity:0.85;
+    transform:rotate(-2deg);
+    border-radius:2px;
+    box-shadow:0 1px 2px rgba(0,0,0,0.12);
+  }
+  .card:nth-child(2n) .tape{ transform:rotate(2deg); left:14px; }
+  .card:nth-child(3n) .tape{ transform:rotate(-1.5deg); left:22px; }
+
+  .day-name{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:700;
+    font-size:19px;
+    margin:6px 0 2px;
+  }
+  .day-count{
+    font-family:'Space Mono', monospace;
+    font-size:12px;
+    color:var(--ink-soft);
+    margin-bottom:10px;
+  }
+  .day-count.full{ color:var(--red); font-weight:700; }
+  .day-count.ok{ color:var(--green); font-weight:700; }
+
+  .seats{
+    display:flex;
+    flex-wrap:wrap;
+    gap:5px;
+    margin-bottom:12px;
+  }
+  .seat{
+    width:16px;
+    height:16px;
+    border-radius:4px;
+    border:1.6px solid var(--paper-line);
+    background:transparent;
+    flex-shrink:0;
+  }
+  .seat.filled{
+    background:var(--ink);
+    border-color:var(--ink);
+  }
+  .seat.filled.full-day{
+    background:var(--red);
+    border-color:var(--red);
+  }
+
+  .names{
+    list-style:none;
+    margin:0 0 12px;
+    padding:0;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    min-height:8px;
+  }
+  .names li{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+    background:var(--paper);
+    border-radius:8px;
+    padding:6px 9px;
+    font-size:13.5px;
+  }
+  .names li .num{
+    font-family:'Space Mono', monospace;
+    color:var(--ink-soft);
+    font-size:11.5px;
+    margin-right:6px;
+  }
+  .names li .del{
+    border:none;
+    background:none;
+    color:var(--red);
+    font-size:15px;
+    line-height:1;
+    cursor:pointer;
+    padding:2px 4px;
+    border-radius:4px;
+    flex-shrink:0;
+  }
+  .names li .del:hover{ background:var(--red-bg); }
+  .empty-row{
+    color:var(--ink-soft);
+    font-size:12.5px;
+    font-style:italic;
+    padding:2px 0;
+  }
+
+  .join-form{ margin-top:auto; display:flex; gap:6px; }
+  .join-form input{
+    flex:1;
+    min-width:0;
+    border:1.4px solid var(--paper-line);
+    border-radius:8px;
+    padding:8px 10px;
+    font-size:13.5px;
+    font-family:inherit;
+    background:var(--paper);
+    color:var(--ink);
+  }
+  .join-form input:focus{
+    outline:none;
+    border-color:var(--green);
+  }
+  .join-form button{
+    border:none;
+    background:var(--ink);
+    color:#fff;
+    border-radius:8px;
+    padding:8px 12px;
+    font-size:13px;
+    font-weight:600;
+    cursor:pointer;
+    flex-shrink:0;
+  }
+  .join-form button:hover{ background:#111a30; }
+
+  .full-msg{
+    margin-top:auto;
+    background:var(--red-bg);
+    color:var(--red);
+    border-radius:8px;
+    padding:9px 10px;
+    font-size:12.5px;
+    font-weight:600;
+    text-align:center;
+  }
+
+  .reset-day{
+    margin-top:8px;
+    align-self:flex-start;
+    border:1px solid var(--paper-line);
+    background:none;
+    color:var(--ink-soft);
+    font-size:11px;
+    font-family:'Space Mono', monospace;
+    border-radius:6px;
+    padding:4px 8px;
+    cursor:pointer;
+  }
+  .reset-day:hover{ border-color:var(--red); color:var(--red); }
+
+  footer{
+    margin-top:30px;
+    font-size:11.5px;
+    color:var(--ink-soft);
+    text-align:center;
+    font-family:'Space Mono', monospace;
+  }
+
+  /* modal */
+  .overlay{
+    position:fixed; inset:0;
+    background:rgba(31,42,68,0.45);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    z-index:50;
+  }
+  .overlay.show{ display:flex; }
+  .modal{
+    background:var(--card);
+    border-radius:14px;
+    padding:22px 20px;
+    width:100%;
+    max-width:300px;
+    box-shadow:0 20px 50px -20px rgba(0,0,0,0.4);
+  }
+  .modal h3{
+    font-family:'Space Grotesk', sans-serif;
+    margin:0 0 4px;
+    font-size:17px;
+  }
+  .modal p{ margin:0 0 12px; font-size:12.5px; color:var(--ink-soft); }
+  .modal input{
+    width:100%;
+    border:1.4px solid var(--paper-line);
+    border-radius:8px;
+    padding:9px 10px;
+    font-size:14px;
+    margin-bottom:10px;
+    font-family:inherit;
+  }
+  .modal-actions{ display:flex; gap:8px; }
+  .modal-actions button{
+    flex:1;
+    border:none;
+    border-radius:8px;
+    padding:9px 0;
+    font-size:13px;
+    font-weight:600;
+    cursor:pointer;
+  }
+  .btn-cancel{ background:var(--paper); color:var(--ink-soft); }
+  .btn-ok{ background:var(--ink); color:#fff; }
+  .modal-error{ color:var(--red); font-size:12px; margin:-4px 0 8px; display:none; }
+
+  @media (max-width:480px){
+    .grid{ grid-template-columns:1fr 1fr; }
+    header{ flex-direction:column; }
+    .lock-btn{ align-self:flex-start; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="title-block">
+      <p class="eyebrow">Jadwal mingguan</p>
+      <h1>Papan Piket Kelas</h1>
+      <p class="subtitle">Pilih hari yang kuotanya masih tersedia, lalu tulis namamu. Daftar ini bisa dilihat semua orang.</p>
+    </div>
+    <button class="lock-btn" id="lockBtn">
+      <svg id="lockIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="9" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>
+      <span id="lockLabel">Mode Admin</span>
+    </button>
+  </header>
+
+  <div class="banner" id="banner">Memuat data…</div>
+
+  <div class="grid" id="grid"></div>
+
+  <footer>Diperbarui langsung • data tersimpan otomatis</footer>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h3>Masuk sebagai admin</h3>
+    <p>Hanya pemilik papan piket yang bisa menghapus nama atau mereset daftar.</p>
+    <p class="modal-error" id="modalError">Password salah, coba lagi.</p>
+    <input type="password" id="pwInput" placeholder="Password admin" autocomplete="off">
+    <div class="modal-actions">
+      <button class="btn-cancel" id="pwCancel">Batal</button>
+      <button class="btn-ok" id="pwOk">Masuk</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Ganti password ini agar hanya kamu yang tahu.
+  const ADMIN_PASSWORD = "piket2026";
+
+  const DAYS = [
+    { key: "senin",  label: "Senin",  quota: 5 },
+    { key: "selasa", label: "Selasa", quota: 5 },
+    { key: "rabu",   label: "Rabu",   quota: 5 },
+    { key: "kamis",  label: "Kamis",  quota: 6 },
+    { key: "jumat",  label: "Jum'at", quota: 6 },
+  ];
+  const STORAGE_KEY = "piket-kelas-data";
+
+  let data = null;
+  let isAdmin = false;
+
+  const grid = document.getElementById('grid');
+  const banner = document.getElementById('banner');
+  const lockBtn = document.getElementById('lockBtn');
+  const lockLabel = document.getElementById('lockLabel');
+  const overlay = document.getElementById('overlay');
+  const pwInput = document.getElementById('pwInput');
+  const pwOk = document.getElementById('pwOk');
+  const pwCancel = document.getElementById('pwCancel');
+  const modalError = document.getElementById('modalError');
+
+  async function loadData() {
+    try {
+      const res = await window.storage.get(STORAGE_KEY, true);
+      data = JSON.parse(res.value);
+    } catch (e) {
+      data = {};
+      DAYS.forEach(d => data[d.key] = []);
+      await saveData();
+    }
+    render();
+  }
+
+  async function saveData() {
+    try {
+      await window.storage.set(STORAGE_KEY, JSON.stringify(data), true);
+    } catch (e) {
+      console.error('Gagal menyimpan data', e);
+    }
+  }
+
+  function render() {
+    grid.innerHTML = '';
+    const fullDays = [];
+    const openDays = [];
+
+    DAYS.forEach(day => {
+      const list = data[day.key] || [];
+      const isFull = list.length >= day.quota;
+      if (isFull) fullDays.push(day.label); else openDays.push(day.label + ` (${day.quota - list.length} slot)`);
+
+      const card = document.createElement('div');
+      card.className = 'card';
+
+      const tape = document.createElement('div');
+      tape.className = 'tape';
+      card.appendChild(tape);
+
+      const name = document.createElement('div');
+      name.className = 'day-name';
+      name.textContent = day.label;
+      card.appendChild(name);
+
+      const count = document.createElement('div');
+      count.className = 'day-count ' + (isFull ? 'full' : 'ok');
+      count.textContent = `${list.length} / ${day.quota} terisi`;
+      card.appendChild(count);
+
+      const seats = document.createElement('div');
+      seats.className = 'seats';
+      for (let i = 0; i < day.quota; i++) {
+        const s = document.createElement('div');
+        s.className = 'seat' + (i < list.length ? ' filled' + (isFull ? ' full-day' : '') : '');
+        seats.appendChild(s);
+      }
+      card.appendChild(seats);
+
+      const ul = document.createElement('ul');
+      ul.className = 'names';
+      if (list.length === 0) {
+        const empty = document.createElement('li');
+        empty.className = 'empty-row';
+        empty.style.background = 'none';
+        empty.textContent = 'Belum ada yang mendaftar';
+        ul.appendChild(empty);
+      } else {
+        list.forEach((entry, idx) => {
+          const li = document.createElement('li');
+          const left = document.createElement('span');
+          left.innerHTML = `<span class="num">${idx + 1}.</span>${escapeHtml(entry.name)}`;
+          li.appendChild(left);
+          if (isAdmin) {
+            const del = document.createElement('button');
+            del.className = 'del';
+            del.textContent = '✕';
+            del.title = 'Hapus nama ini';
+            del.onclick = () => removeName(day.key, idx);
+            li.appendChild(del);
+          }
+          ul.appendChild(li);
+        });
+      }
+      card.appendChild(ul);
+
+      if (isFull) {
+        const msg = document.createElement('div');
+        msg.className = 'full-msg';
+        msg.textContent = 'Kuota penuh — pilih hari lain';
+        card.appendChild(msg);
+      } else {
+        const form = document.createElement('form');
+        form.className = 'join-form';
+        const input = document.createElement('input');
+        input.placeholder = 'Nama kamu';
+        input.maxLength = 40;
+        const btn = document.createElement('button');
+        btn.type = 'submit';
+        btn.textContent = 'Daftar';
+        form.appendChild(input);
+        form.appendChild(btn);
+        form.onsubmit = (e) => {
+          e.preventDefault();
+          addName(day.key, input.value);
+        };
+        card.appendChild(form);
+      }
+
+      if (isAdmin && list.length > 0) {
+        const resetBtn = document.createElement('button');
+        resetBtn.className = 'reset-day';
+        resetBtn.textContent = 'Reset hari ini';
+        resetBtn.onclick = () => resetDay(day.key);
+        card.appendChild(resetBtn);
+      }
+
+      grid.appendChild(card);
+    });
+
+    if (fullDays.length === DAYS.length) {
+      banner.innerHTML = `<span class="dot-full">Semua hari sudah penuh.</span> Tunggu slot dibuka lagi atau hubungi penanggung jawab piket.`;
+    } else if (fullDays.length === 0) {
+      banner.innerHTML = `<span class="dot-ok">Semua hari masih terbuka.</span> Silakan pilih hari yang paling cocok.`;
+    } else {
+      banner.innerHTML = `<span class="dot-full">Penuh: ${fullDays.join(', ')}.</span> &nbsp; <span class="dot-ok">Masih ada slot: ${openDays.join(', ')}.</span>`;
+    }
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  async function addName(dayKey, rawName) {
+    const name = rawName.trim();
+    if (!name) return;
+    const list = data[dayKey] || [];
+    const day = DAYS.find(d => d.key === dayKey);
+    if (list.length >= day.quota) {
+      render();
+      return;
+    }
+    const already = list.some(e => e.name.toLowerCase() === name.toLowerCase());
+    if (already) {
+      alert('Nama ini sudah terdaftar di hari ' + day.label + '.');
+      return;
+    }
+    list.push({ name, ts: Date.now() });
+    data[dayKey] = list;
+    render();
+    await saveData();
+  }
+
+  async function removeName(dayKey, idx) {
+    if (!isAdmin) return;
+    data[dayKey].splice(idx, 1);
+    render();
+    await saveData();
+  }
+
+  async function resetDay(dayKey) {
+    if (!isAdmin) return;
+    const day = DAYS.find(d => d.key === dayKey);
+    if (!confirm(`Hapus semua nama di hari ${day.label}?`)) return;
+    data[dayKey] = [];
+    render();
+    await saveData();
+  }
+
+  // Admin lock
+  lockBtn.onclick = () => {
+    if (isAdmin) {
+      isAdmin = false;
+      lockBtn.classList.remove('on');
+      lockLabel.textContent = 'Mode Admin';
+      render();
+    } else {
+      pwInput.value = '';
+      modalError.style.display = 'none';
+      overlay.classList.add('show');
+      setTimeout(() => pwInput.focus(), 50);
+    }
+  };
+
+  pwCancel.onclick = () => overlay.classList.remove('show');
+  overlay.onclick = (e) => { if (e.target === overlay) overlay.classList.remove('show'); };
+
+  function tryLogin() {
+    if (pwInput.value === ADMIN_PASSWORD) {
+      isAdmin = true;
+      lockBtn.classList.add('on');
+      lockLabel.textContent = 'Admin aktif';
+      overlay.classList.remove('show');
+      render();
+    } else {
+      modalError.style.display = 'block';
+    }
+  }
+  pwOk.onclick = tryLogin;
+  pwInput.onkeydown = (e) => { if (e.key === 'Enter') tryLogin(); };
+
+  loadData();
+</script>
+</body>
+</html>
